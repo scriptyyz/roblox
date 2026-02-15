@@ -1,0 +1,214 @@
+-- CUSTOM UI FOR YOUTUBE: SCRIPTYYZ
+local ScreenGui = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local Title = Instance.new("TextLabel")
+local MinimizeBtn = Instance.new("TextButton")
+local Footer = Instance.new("TextLabel")
+local Container = Instance.new("ScrollingFrame")
+local UIListLayout = Instance.new("UIListLayout")
+
+-- Configuration
+_G.AutoSwing = false
+_G.AutoFarmZombies = false
+_G.AutoLuckyBlock = false
+_G.WalkSpeedValue = 16
+_G.AntiAFK = false
+
+ScreenGui.Parent = game.CoreGui
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+MainFrame.Position = UDim2.new(0.1, 0, 0.4, 0)
+MainFrame.Size = UDim2.new(0, 250, 0, 310) -- Povecan frame za jos jedan feature
+MainFrame.Active = true
+MainFrame.Draggable = true
+
+local MainCorner = Instance.new("UICorner", MainFrame)
+MainCorner.CornerRadius = UDim.new(0, 15)
+
+Title.Parent = MainFrame
+Title.Size = UDim2.new(1, 0, 0, 45)
+Title.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+Title.Text = "Youtube: Scriptyyz"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 16
+Instance.new("UICorner", Title).CornerRadius = UDim.new(0, 15)
+
+MinimizeBtn.Parent = MainFrame
+MinimizeBtn.Size = UDim2.new(0, 30, 0, 30)
+MinimizeBtn.Position = UDim2.new(1, -35, 0, 7)
+MinimizeBtn.BackgroundTransparency = 1 
+MinimizeBtn.Text = "▼"
+MinimizeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+MinimizeBtn.Font = Enum.Font.GothamBold
+MinimizeBtn.TextSize = 18
+
+local minimized = false
+MinimizeBtn.MouseButton1Click:Connect(function()
+    minimized = not minimized
+    MainFrame:TweenSize(minimized and UDim2.new(0, 250, 0, 45) or UDim2.new(0, 250, 0, 310), "Out", "Quart", 0.3, true)
+    Container.Visible = not minimized
+    Footer.Visible = not minimized
+    MinimizeBtn.Text = minimized and "▲" or "▼"
+end)
+
+Footer.Parent = MainFrame
+Footer.Size = UDim2.new(1, 0, 0, 25)
+Footer.Position = UDim2.new(0, 0, 1, -25)
+Footer.BackgroundTransparency = 1
+Footer.Text = "Fight Your Zombie"
+Footer.TextColor3 = Color3.fromRGB(200, 200, 200)
+Footer.Font = Enum.Font.GothamBold
+Footer.TextSize = 11
+
+Container.Parent = MainFrame
+Container.Position = UDim2.new(0, 10, 0, 50)
+Container.Size = UDim2.new(1, -20, 1, -80)
+Container.BackgroundTransparency = 1
+Container.ScrollBarThickness = 0
+
+UIListLayout.Parent = Container
+UIListLayout.Padding = UDim.new(0, 6)
+
+local function createToggle(txt, callback)
+    local btn = Instance.new("TextButton", Container)
+    btn.Size = UDim2.new(1, 0, 0, 35)
+    btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    btn.Text = txt .. ": OFF"
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.Font = Enum.Font.GothamBold
+    btn.TextSize = 14
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+    local enabled = false
+    btn.MouseButton1Click:Connect(function()
+        enabled = not enabled
+        btn.Text = txt .. (enabled and ": ON" or ": OFF")
+        btn.BackgroundColor3 = enabled and Color3.fromRGB(50, 150, 50) or Color3.fromRGB(30, 30, 30)
+        callback(enabled)
+    end)
+end
+
+local function createSlider(txt, min, max, callback)
+    local sliderFrame = Instance.new("Frame", Container)
+    sliderFrame.Size = UDim2.new(1, 0, 0, 35)
+    sliderFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    Instance.new("UICorner", sliderFrame).CornerRadius = UDim.new(0, 8)
+    local label = Instance.new("TextLabel", sliderFrame)
+    label.Size = UDim2.new(1, 0, 1, 0)
+    label.BackgroundTransparency = 1
+    label.Text = txt .. ": " .. min
+    label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    label.Font = Enum.Font.GothamBold
+    label.TextSize = 14
+    label.ZIndex = 2
+    local fill = Instance.new("Frame", sliderFrame)
+    fill.Size = UDim2.new(0, 0, 1, 0)
+    fill.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    fill.BorderSizePixel = 0
+    Instance.new("UICorner", fill).CornerRadius = UDim.new(0, 8)
+    local dragging = false
+    local function move()
+        local mousePos = game:GetService("UserInputService"):GetMouseLocation().X
+        local percent = math.clamp((mousePos - sliderFrame.AbsolutePosition.X) / sliderFrame.AbsoluteSize.X, 0, 1)
+        fill.Size = UDim2.new(percent, 0, 1, 0)
+        local val = math.floor(min + (max - min) * percent)
+        label.Text = txt .. ": " .. val
+        callback(val)
+    end
+    sliderFrame.InputBegan:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = true move() end end)
+    game:GetService("UserInputService").InputEnded:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end end)
+    game:GetService("RunService").RenderStepped:Connect(function() if dragging then move() end end)
+end
+
+local function setSteady(root, state)
+    local bv = root:FindFirstChild("SteadyBV") or Instance.new("BodyVelocity", root)
+    bv.Name = "SteadyBV"
+    local bav = root:FindFirstChild("SteadyBAV") or Instance.new("BodyAngularVelocity", root)
+    bav.Name = "SteadyBAV"
+    if state then
+        bv.Velocity = Vector3.new(0, 0, 0)
+        bv.MaxForce = Vector3.new(9e9, 9e9, 9e9)
+        bav.AngularVelocity = Vector3.new(0, 0, 0)
+        bav.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
+    else
+        bv.MaxForce = Vector3.new(0, 0, 0)
+        bav.MaxTorque = Vector3.new(0, 0, 0)
+    end
+end
+
+-- Force WalkSpeed
+game:GetService("RunService").Stepped:Connect(function()
+    pcall(function()
+        local hum = game.Players.LocalPlayer.Character:FindFirstChild("Humanoid")
+        if hum then hum.WalkSpeed = _G.WalkSpeedValue end
+    end)
+end)
+
+-- Anti-AFK Internal
+game:GetService("Players").LocalPlayer.Idled:connect(function()
+    if _G.AntiAFK then
+        local vu = game:GetService("VirtualUser")
+        vu:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+        task.wait(1)
+        vu:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+    end
+end)
+
+-- Main Logic Loop
+task.spawn(function()
+    while task.wait(0.01) do
+        local lp = game.Players.LocalPlayer
+        local char = lp.Character
+        if not char or not char:FindFirstChild("HumanoidRootPart") then continue end
+        local root = char.HumanoidRootPart
+
+        if _G.AutoSwing then
+            local tool = char:FindFirstChildOfClass("Tool")
+            if tool then tool:Activate() end
+        end
+
+        local isTeleporting = false
+
+        if _G.AutoLuckyBlock then
+            pcall(function()
+                for _, obj in pairs(workspace.Debris:GetDescendants()) do
+                    if obj.Name == "Main" and obj:IsA("BasePart") then
+                        isTeleporting = true
+                        setSteady(root, true)
+                        root.CFrame = obj.CFrame * CFrame.new(0, 3, 0)
+                        break
+                    end
+                end
+            end)
+        end
+
+        if _G.AutoFarmZombies and not isTeleporting then
+            local folder = workspace:FindFirstChild("WalkingZombies")
+            if folder then
+                local target = nil
+                local dist = math.huge
+                for _, z in pairs(folder:GetChildren()) do
+                    local zroot = z:FindFirstChild("HumanoidRootPart") or z:FindFirstChildWhichIsA("BasePart")
+                    if zroot then
+                        local d = (root.Position - zroot.Position).Magnitude
+                        if d < dist then dist = d target = zroot end
+                    end
+                end
+                if target then
+                    isTeleporting = true
+                    setSteady(root, true)
+                    root.CFrame = target.CFrame * CFrame.new(0, 0, 3.5)
+                end
+            end
+        end
+
+        if not isTeleporting then setSteady(root, false) end
+    end
+end)
+
+-- GUI Elements
+createToggle("Auto Swing", function(state) _G.AutoSwing = state end)
+createToggle("Auto Farm Zombies", function(state) _G.AutoFarmZombies = state end)
+createToggle("Auto Collect Lucky Block", function(state) _G.AutoLuckyBlock = state end)
+createToggle("Anti-AFK", function(state) _G.AntiAFK = state end)
+createSlider("Walk Speed", 16, 250, function(val) _G.WalkSpeedValue = val end)

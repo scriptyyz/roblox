@@ -129,6 +129,7 @@ local function createSlider(txt, min, max, callback)
     game:GetService("RunService").RenderStepped:Connect(function() if dragging then move() end end)
 end
 
+-- 1. Remove Lava (First)
 local lavaConn
 createToggle("Remove Lava", function(state)
     if state then
@@ -145,16 +146,19 @@ createToggle("Remove Lava", function(state)
     end
 end)
 
+-- 2. TP End Zone (Updated Coords)
 createButton("TP End Zone", function()
     local hrp = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-    if hrp then hrp.CFrame = CFrame.new(82.684, -2645.274, -138.457) end
+    if hrp then hrp.CFrame = CFrame.new(88.96578979492188, 354.7254638671875, -141.5003662109375) end
 end)
 
+-- 3. TP Safe Zone (Updated Coords)
 createButton("TP Safe Zone", function()
     local hrp = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-    if hrp then hrp.CFrame = CFrame.new(84.253, -4.025, -72.663) end
+    if hrp then hrp.CFrame = CFrame.new(85.1280746459961, 2995.973876953125, -76.62519836425781) end
 end)
 
+-- 4. Collect Cash
 local autoCash = false
 createToggle("Collect Cash", function(state)
     autoCash = state
@@ -188,6 +192,7 @@ createToggle("Collect Cash", function(state)
     end)
 end)
 
+-- 5. Walkspeed (Very Bottom)
 createSlider("Walkspeed", 16, 250, function(val)
     local character = game.Players.LocalPlayer.Character
     if character and character:FindFirstChild("Humanoid") then

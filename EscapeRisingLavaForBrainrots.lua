@@ -1,4 +1,3 @@
--- CUSTOM UI: SCRIPTYYZ - THE ONE THAT WORKS
 local ScreenGui = Instance.new("ScreenGui")
 local MainFrame = Instance.new("Frame")
 local Title = Instance.new("TextLabel")
@@ -7,12 +6,11 @@ local Footer = Instance.new("TextLabel")
 local Container = Instance.new("ScrollingFrame")
 local UIListLayout = Instance.new("UIListLayout")
 
--- GUI Setup
 ScreenGui.Parent = game.CoreGui
 MainFrame.Parent = ScreenGui
 MainFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
 MainFrame.Position = UDim2.new(0.1, 0, 0.4, 0)
-MainFrame.Size = UDim2.new(0, 250, 0, 270) 
+MainFrame.Size = UDim2.new(0, 250, 0, 300) 
 MainFrame.Active = true
 MainFrame.Draggable = true
 
@@ -40,7 +38,7 @@ MinimizeBtn.TextSize = 18
 local minimized = false
 MinimizeBtn.MouseButton1Click:Connect(function()
     minimized = not minimized
-    MainFrame:TweenSize(minimized and UDim2.new(0, 250, 0, 45) or UDim2.new(0, 250, 0, 270), "Out", "Quart", 0.3, true)
+    MainFrame:TweenSize(minimized and UDim2.new(0, 250, 0, 45) or UDim2.new(0, 250, 0, 300), "Out", "Quart", 0.3, true)
     Container.Visible = not minimized
     Footer.Visible = not minimized
     MinimizeBtn.Text = minimized and "▲" or "▼"
@@ -50,28 +48,28 @@ Footer.Parent = MainFrame
 Footer.Size = UDim2.new(1, 0, 0, 25)
 Footer.Position = UDim2.new(0, 0, 1, -25)
 Footer.BackgroundTransparency = 1
-Footer.Text = "Escape Rising Lava For Brainrots" 
+Footer.Text = "Escape Rising Lava For Brainrots"
 Footer.TextColor3 = Color3.fromRGB(200, 200, 200)
 Footer.Font = Enum.Font.GothamBold
 Footer.TextSize = 10
 
 Container.Parent = MainFrame
-Container.Position = UDim2.new(0, 10, 0, 50)
-Container.Size = UDim2.new(1, -20, 1, -80)
+Container.Position = UDim2.new(0, 10, 0, 55)
+Container.Size = UDim2.new(1, -20, 1, -90)
 Container.BackgroundTransparency = 1
 Container.ScrollBarThickness = 0
 
 UIListLayout.Parent = Container
-UIListLayout.Padding = UDim.new(0, 6)
+UIListLayout.Padding = UDim.new(0, 8)
 
 local function createToggle(txt, callback)
     local btn = Instance.new("TextButton", Container)
-    btn.Size = UDim2.new(1, 0, 0, 32)
+    btn.Size = UDim2.new(1, 0, 0, 36)
     btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     btn.Text = txt .. ": OFF"
     btn.TextColor3 = Color3.fromRGB(255, 255, 255)
     btn.Font = Enum.Font.GothamBold
-    btn.TextSize = 13
+    btn.TextSize = 14
     Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
     local enabled = false
     btn.MouseButton1Click:Connect(function()
@@ -84,12 +82,12 @@ end
 
 local function createButton(txt, callback)
     local btn = Instance.new("TextButton", Container)
-    btn.Size = UDim2.new(1, 0, 0, 32)
+    btn.Size = UDim2.new(1, 0, 0, 36)
     btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     btn.Text = txt
     btn.TextColor3 = Color3.fromRGB(255, 255, 255)
     btn.Font = Enum.Font.GothamBold
-    btn.TextSize = 13
+    btn.TextSize = 14
     Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
     btn.MouseButton1Click:Connect(function()
         btn.BackgroundColor3 = Color3.fromRGB(50, 150, 50)
@@ -101,7 +99,7 @@ end
 
 local function createSlider(txt, min, max, callback)
     local sliderFrame = Instance.new("Frame", Container)
-    sliderFrame.Size = UDim2.new(1, 0, 0, 32)
+    sliderFrame.Size = UDim2.new(1, 0, 0, 36)
     sliderFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     Instance.new("UICorner", sliderFrame).CornerRadius = UDim.new(0, 8)
     local label = Instance.new("TextLabel", sliderFrame)
@@ -110,7 +108,7 @@ local function createSlider(txt, min, max, callback)
     label.Text = txt .. ": " .. min
     label.TextColor3 = Color3.fromRGB(255, 255, 255)
     label.Font = Enum.Font.GothamBold
-    label.TextSize = 13
+    label.TextSize = 14
     label.ZIndex = 2
     local fill = Instance.new("Frame", sliderFrame)
     fill.Size = UDim2.new(0, 0, 1, 0)
@@ -131,33 +129,32 @@ local function createSlider(txt, min, max, callback)
     game:GetService("RunService").RenderStepped:Connect(function() if dragging then move() end end)
 end
 
--- 1. REMOVE LAVA (ORIGINAL WORKING METHOD)
-local lavaToggle = false
+local lavaConn
 createToggle("Remove Lava", function(state)
-    lavaToggle = state
-    task.spawn(function()
-        while lavaToggle do
-            local gl = workspace:FindFirstChild("GameLava")
-            if gl then for _, c in pairs(gl:GetChildren()) do c:Destroy() end end
-            for _, o in pairs(workspace:GetDescendants()) do
-                if o:IsA("BasePart") and o.Name:lower():find("lava") then o:Destroy() end
-            end
-            task.wait(1)
+    if state then
+        local gl = workspace:FindFirstChild("GameLava")
+        if gl then
+            for _, c in pairs(gl:GetChildren()) do c:Destroy() end
+            lavaConn = gl.ChildAdded:Connect(function(child)
+                task.wait()
+                child:Destroy()
+            end)
         end
-    end)
+    else
+        if lavaConn then lavaConn:Disconnect() lavaConn = nil end
+    end
 end)
 
--- 2. TELEPORTS
 createButton("TP End Zone", function()
     local hrp = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
     if hrp then hrp.CFrame = CFrame.new(82.684, -2645.274, -138.457) end
 end)
+
 createButton("TP Safe Zone", function()
     local hrp = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
     if hrp then hrp.CFrame = CFrame.new(84.253, -4.025, -72.663) end
 end)
 
--- 3. COLLECT CASH
 local autoCash = false
 createToggle("Collect Cash", function(state)
     autoCash = state
@@ -191,7 +188,6 @@ createToggle("Collect Cash", function(state)
     end)
 end)
 
--- 4. WALKSPEED (BOTTOM)
 createSlider("Walkspeed", 16, 250, function(val)
     local character = game.Players.LocalPlayer.Character
     if character and character:FindFirstChild("Humanoid") then

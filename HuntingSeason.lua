@@ -1,5 +1,5 @@
 -- CUSTOM UI TEMPLATE: SCRIPTYYZ
--- HUNTING SEASON - FINAL VERSION WITH PROPER MAGIC BULLET
+-- HUNTING SEASON - SA PRAVIM MAGIC BULLETOM
 
 local ScreenGui = Instance.new("ScreenGui")
 local MainFrame = Instance.new("Frame")
@@ -69,7 +69,7 @@ UIListLayout.Padding = UDim.new(0, 6)
 UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
 -- =================================
--- ORIGINAL LOGIC FROM RAYFIELD SCRIPT
+-- ORIGINALNA LOGIKA IZ RAYFIELD SKRIPTE
 -- =================================
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -83,7 +83,7 @@ local workspaceRef = workspace
 local ESPData, DeadESPData = {}, {}
 local animalESPEnabled, deadAnimalESPEnabled = false, false
 local magicBulletEnabled = false
-local magicHitboxSize = 15
+local magicHitboxSize = 15  -- Vraćeno na 15
 local magicTransparency = 0.7
 local magicColor = Color3.fromRGB(255, 0, 0)
 local magicFolder = "Animals"
@@ -95,7 +95,7 @@ local espColor = Color3.fromRGB(255, 200, 50)
 local deadEspColor = Color3.fromRGB(255, 100, 100)
 local selectedAnimals = {}
 local useConstantSpeed = false
-local animalTeleportList = {}
+local animalTeleportList = {}  -- Samo za internu upotrebu
 
 -- helpers
 local function findRootPart(model)
@@ -118,7 +118,7 @@ local function getBestPart(model)
     return part
 end
 
--- MAGIC BULLET - PROPER LOGIC FROM RAYFIELD
+-- MAGIC BULLET - PRAVA LOGIKA IZ RAYFIELD SKRIPTE
 local function updateMagicHitboxes()
     if not magicBulletEnabled then return end
 
@@ -215,7 +215,7 @@ local function scanAndCreateESP(isDead)
     end
 end
 
--- Teleport functions
+-- Teleport funkcije
 local function teleportToPosition(pos)
     if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
         LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(pos)
@@ -299,7 +299,7 @@ end)
 applySpeed()
 
 -- =================================
--- UI FUNCTIONS
+-- FUNKCIJE ZA UI
 -- =================================
 
 local function createSection(title)
@@ -395,7 +395,7 @@ local function createSlider(txt, min, max, defaultValue, callback)
 end
 
 -- =================================
--- CREATE ALL OPTIONS
+-- KREIRANJE OPCIJA - SA PRAVIM MAGIC BULLETOM
 -- =================================
 
 createToggle("Live Animal ESP", function(v)
@@ -420,6 +420,7 @@ createSlider("ESP Distance", 100, 5000, 1000, function(v)
     maxEspDistance = v
 end)
 
+-- MAGIC BULLET - sa sliderom za veličinu kao u originalu
 createToggle("Magic Bullet", function(v)
     magicBulletEnabled = v
 end, false)
@@ -464,7 +465,7 @@ createButton("Destroy GUI", function()
     ScreenGui:Destroy()
 end)
 
--- Initial scan
+-- Inicijalno skeniranje
 task.wait(1)
 scanAndCreateESP(false)
 scanAndCreateESP(true)
